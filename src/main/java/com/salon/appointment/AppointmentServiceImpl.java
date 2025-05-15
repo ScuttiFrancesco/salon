@@ -3,6 +3,7 @@ package com.salon.appointment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.salon.customer.CustomerRepository;
 import com.salon.exception.DuplicateDataException;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -10,17 +11,19 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 
-
 @Service
 public class AppointmentServiceImpl implements IAppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
+    private final CustomerRepository customerRepository;
 
     @Autowired
-    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, AppointmentMapper appointmentMapper) {
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, AppointmentMapper appointmentMapper,
+            CustomerRepository customerRepository) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentMapper = appointmentMapper;
+        this.customerRepository = customerRepository;
     }
 
     @Override
@@ -29,7 +32,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
             throw new DuplicateDataException("An appointment already exists with the same date and customer ID");
         }
 
-        return appointmentMapper.toDto(appointmentRepository.save(appointmentMapper.toEntity(appointment)));
+        return appointmentMapper
+                .toDto(appointmentRepository.save(appointmentMapper.toEntity(appointment, customerRepository)));
     }
 
     @Override
@@ -44,7 +48,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
             throw new DuplicateDataException("An appointment already exists with the same date and customer ID");
         }
 
-        return appointmentMapper.toDto(appointmentRepository.save(appointmentMapper.toEntity(appointment)));
+        return appointmentMapper
+                .toDto(appointmentRepository.save(appointmentMapper.toEntity(appointment, customerRepository)));
     }
 
     @Override
@@ -53,15 +58,17 @@ public class AppointmentServiceImpl implements IAppointmentService {
         Appointment existing = appointmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
 
+        appointmentRepository.deleteById(id);
+
         if (appointmentRepository.existsById(id)) {
             throw new RuntimeException("Appointment deletion failed");
         }
-        appointmentRepository.deleteById(id);
+
     }
 
     @Override
     public AppointmentDto findById(Long id) {
-         Appointment existing = appointmentRepository.findById(id)
+        Appointment existing = appointmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
 
         return appointmentMapper.toDto(existing);
@@ -93,11 +100,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public List<AppointmentDto> findByDateAndCustomerId(LocalDate date, Long customerId) {
-       return appointmentRepository.findByDateAndCustomerId(date, customerId)
+        return appointmentRepository.findByDateAndCustomerId(date, customerId)
                 .stream()
                 .map(appointmentMapper::toDto)
                 .toList();
-        
+
     }
 
     @Override
@@ -111,7 +118,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     @Override
     public List<AppointmentDto> findByDateBetweenAndCustomerId(LocalDate startDate, LocalDate endDate,
             Long customerId) {
-       return appointmentRepository.findByDateBetweenAndCustomerId(startDate, endDate, customerId)
+        return appointmentRepository.findByDateBetweenAndCustomerId(startDate, endDate, customerId)
                 .stream()
                 .map(appointmentMapper::toDto)
                 .toList();

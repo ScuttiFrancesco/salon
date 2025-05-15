@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import com.salon.exception.DuplicateDataException;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CustomerServiceImpl implements ICustomerService {
@@ -14,9 +13,9 @@ public class CustomerServiceImpl implements ICustomerService {
     private final CustomerMapper customerMapper;
 
     @Autowired
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, CustomerMapper customerMapper) {
         this.customerRepository = customerRepository;
-        this.customerMapper = null;
+        this.customerMapper = customerMapper;
     }
 
     @Override
@@ -61,26 +60,24 @@ public class CustomerServiceImpl implements ICustomerService {
     @Override
     public void deleteById(Long id) {
 
-        @SuppressWarnings("unused")
         Customer existing = customerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+
+        customerRepository.deleteById(existing.getId());
 
         if (customerRepository.existsById(id)) {
             throw new RuntimeException("Customer deletion failed");
         }
 
-        customerRepository.deleteById(id);
     }
 
     @Override
-    public Optional<CustomerDto> findById(Long id) {
+    public CustomerDto findById(Long id) {
 
-        @SuppressWarnings("unused")
         Customer existing = customerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
 
-        return customerRepository.findById(id)
-                .map(customerMapper::toDto);
+        return customerMapper.toDto(existing);
     }
 
     @Override
@@ -93,8 +90,8 @@ public class CustomerServiceImpl implements ICustomerService {
 
     @Override
     public List<CustomerDto> findByNameOrSurname(String input) {
-       
-       return customerRepository
+
+        return customerRepository
                 .findByNameStartingWithIgnoreCaseOrSurnameStartingWithIgnoreCase(input, input)
                 .stream()
                 .map(customerMapper::toDto)

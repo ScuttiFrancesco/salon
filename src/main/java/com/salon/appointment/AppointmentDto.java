@@ -13,5 +13,5 @@ public class AppointmentDto {
     private LocalDate date;
     private LocalTime time;
     private Long customerId;
-    private List<Service> service;
+    private List<Service> services;
 }

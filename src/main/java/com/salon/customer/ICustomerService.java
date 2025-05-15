@@ -1,7 +1,6 @@
 package com.salon.customer;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ICustomerService {
     /**
@@ -34,7 +33,7 @@ public interface ICustomerService {
      * @param id l'ID del cliente da trovare
      * @return il cliente trovato, se presente
      */
-    Optional<CustomerDto> findById(Long id);
+    CustomerDto findById(Long id);
 
     /**
      * Trova tutti i clienti.

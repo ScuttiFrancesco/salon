@@ -14,6 +14,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Column;
 import lombok.Data;
 
 @Data
@@ -30,8 +33,13 @@ public class Appointment {
     @ManyToOne
     private Customer customer;
 
-    @ElementCollection
+    @ElementCollection(targetClass = Service.class)
+    @CollectionTable(
+        name = "appointment_service",
+        joinColumns = @JoinColumn(name = "appointment_id")
+    )
+    @Column(name = "service")
     @Enumerated(EnumType.STRING)
-    private List<Service> service;
+    private List<Service> services;
 
 }
