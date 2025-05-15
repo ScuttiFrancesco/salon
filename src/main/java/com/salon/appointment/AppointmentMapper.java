@@ -3,26 +3,22 @@ package com.salon.appointment;
 import org.mapstruct.*;
 import com.salon.customer.Customer;
 import com.salon.customer.CustomerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring")
-public abstract class AppointmentMapper {
-
-    @Autowired
-    protected CustomerRepository customerRepository;
+public interface AppointmentMapper {
 
     @Mapping(source = "customer.id", target = "customerId")
-    public abstract AppointmentDto toDto(Appointment appointment);
+    AppointmentDto toDto(Appointment appointment);
 
     @Mapping(source = "customerId", target = "customer")
-    public abstract Appointment toEntity(AppointmentDto appointmentDto);
+    Appointment toEntity(AppointmentDto appointmentDto, @Context CustomerRepository customerRepository);
 
-    protected Customer map(Long customerId) {
+    default Customer map(Long customerId, @Context CustomerRepository customerRepository) {
         if (customerId == null) return null;
         return customerRepository.findById(customerId).orElse(null);
     }
 
-    protected Long map(Customer customer) {
+    default Long map(Customer customer) {
         return customer != null ? customer.getId() : null;
     }
 }
