@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.salon.enums.CustomerSearchType;
+
 import jakarta.validation.Valid;
 
 @RestController
@@ -57,9 +59,21 @@ public class CustomerController {
         return ResponseEntity.ok(customers);
     }
 
-    @GetMapping("/search/{input}")
+    @GetMapping("/searchName={input}")
     public ResponseEntity<List<CustomerDto>> findByNameOrSurname(@PathVariable String input) {
-        List<CustomerDto> customers = customerService.findByNameOrSurname(input);
+        List<CustomerDto> customers = customerService.findBySearch(CustomerSearchType.NAME ,input);
+        return ResponseEntity.ok(customers);
+    }
+
+     @GetMapping("/searchEmail={input}")
+    public ResponseEntity<List<CustomerDto>> findByemail(@PathVariable String input) {
+        List<CustomerDto> customers = customerService.findBySearch(CustomerSearchType.EMAIL ,input);
+        return ResponseEntity.ok(customers);
+    }
+
+     @GetMapping("/searchPhoneNumber={input}")
+    public ResponseEntity<List<CustomerDto>> findByPhoneNumber(@PathVariable String input) {
+        List<CustomerDto> customers = customerService.findBySearch(CustomerSearchType.PHONE_NUMBER ,input);
         return ResponseEntity.ok(customers);
     }
 

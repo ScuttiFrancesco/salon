@@ -2,6 +2,8 @@ package com.salon.customer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.salon.enums.CustomerSearchType;
 import com.salon.exception.DuplicateDataException;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
@@ -89,12 +91,33 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     @Override
-    public List<CustomerDto> findByNameOrSurname(String input) {
+    public List<CustomerDto> findBySearch(CustomerSearchType type, String input) {
 
-        return customerRepository
-                .findByNameStartingWithIgnoreCaseOrSurnameStartingWithIgnoreCase(input, input)
-                .stream()
-                .map(customerMapper::toDto)
-                .toList();
+        switch (type) {
+            case NAME:
+                return customerRepository
+                        .findByNameStartingWithIgnoreCaseOrSurnameStartingWithIgnoreCase(input, input)
+                        .stream()
+                        .map(customerMapper::toDto)
+                        .toList();
+
+            case EMAIL:
+                return customerRepository
+                        .findByEmailStartingWithIgnoreCase(input)
+                        .stream()
+                        .map(customerMapper::toDto)
+                        .toList();
+
+            case PHONE_NUMBER:
+                return customerRepository
+                        .findByPhoneNumberStartingWithIgnoreCase(input)
+                        .stream()
+                        .map(customerMapper::toDto)
+                        .toList();
+
+            default:
+                return List.of();
+        }
+
     }
 }

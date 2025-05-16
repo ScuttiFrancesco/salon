@@ -12,6 +12,6 @@ public class PersonDto {
     private String email;
     private String phoneNumber;
     private String address;
-    private LocalDate birthday;
+    private LocalDate birthdate;
 
 }

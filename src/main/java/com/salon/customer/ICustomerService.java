@@ -2,6 +2,8 @@ package com.salon.customer;
 
 import java.util.List;
 
+import com.salon.enums.CustomerSearchType;
+
 public interface ICustomerService {
     /**
      * Inserisce un nuovo cliente.
@@ -48,6 +50,6 @@ public interface ICustomerService {
      * @param id l'ID del cliente da trovare
      * @return il cliente trovato, se presente
      */
-    List<CustomerDto> findByNameOrSurname(String input);
+    List<CustomerDto> findBySearch(CustomerSearchType type ,String input);
 
 }
