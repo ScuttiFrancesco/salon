@@ -9,6 +9,7 @@ import com.salon.exception.DuplicateDataException;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,6 +29,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public AppointmentDto insert(AppointmentDto appointment) {
+
         if (appointmentRepository.existsByDateAndCustomerId(appointment.getDate(), appointment.getCustomerId())) {
             throw new DuplicateDataException("Un appuntamento esiste già con la stessa data e ID cliente");
         }
@@ -92,7 +94,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public List<AppointmentDto> findByDate(LocalDate date) {
-        return appointmentRepository.findByDate(date)
+        LocalDateTime DateTime = date.atStartOfDay();
+        return appointmentRepository.findByDate(DateTime)
                 .stream()
                 .map(appointmentMapper::toDto)
                 .toList();
@@ -100,7 +103,9 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public List<AppointmentDto> findByDateAndCustomerId(LocalDate date, Long customerId) {
-        return appointmentRepository.findByDateAndCustomerId(date, customerId)
+        LocalDateTime DateTime = date.atStartOfDay();
+
+        return appointmentRepository.findByDateAndCustomerId(DateTime, customerId)
                 .stream()
                 .map(appointmentMapper::toDto)
                 .toList();
@@ -109,7 +114,9 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public List<AppointmentDto> findByDateBetween(LocalDate startDate, LocalDate endDate) {
-        return appointmentRepository.findByDateBetween(startDate, endDate)
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+        return appointmentRepository.findByDateBetween(startDateTime, endDateTime)
                 .stream()
                 .map(appointmentMapper::toDto)
                 .toList();
@@ -118,7 +125,9 @@ public class AppointmentServiceImpl implements IAppointmentService {
     @Override
     public List<AppointmentDto> findByDateBetweenAndCustomerId(LocalDate startDate, LocalDate endDate,
             Long customerId) {
-        return appointmentRepository.findByDateBetweenAndCustomerId(startDate, endDate, customerId)
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+        return appointmentRepository.findByDateBetweenAndCustomerId(startDateTime, endDateTime, customerId)
                 .stream()
                 .map(appointmentMapper::toDto)
                 .toList();

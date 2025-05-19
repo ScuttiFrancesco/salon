@@ -25,11 +25,11 @@ public class CustomerServiceImpl implements ICustomerService {
 
         String duplicateField = null;
         if (customerRepository.existsByNameAndSurname(customer.getName(), customer.getSurname())) {
-            duplicateField = "Name and surname";
+            duplicateField = "Cliente";
         } else if (customerRepository.existsByEmail(customer.getEmail())) {
             duplicateField = "Email";
         } else if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
-            duplicateField = "Phone number";
+            duplicateField = "Telefono";
         }
         if (duplicateField != null) {
             throw new DuplicateDataException(duplicateField + " già presente in archivio");
@@ -47,11 +47,11 @@ public class CustomerServiceImpl implements ICustomerService {
         String duplicateField = null;
         if (customerRepository.existsByNameAndSurnameAndIdNot(customer.getName(), customer.getSurname(),
                 customer.getId())) {
-            duplicateField = "Name and surname";
+            duplicateField = "Cliente";
         } else if (customerRepository.existsByEmailAndIdNot(customer.getEmail(), customer.getId())) {
             duplicateField = "Email";
         } else if (customerRepository.existsByPhoneNumberAndIdNot(customer.getPhoneNumber(), customer.getId())) {
-            duplicateField = "Phone number";
+            duplicateField = "Telefono";
         }
         if (duplicateField != null) {
             throw new DuplicateDataException(duplicateField + " già presente in archivio");
