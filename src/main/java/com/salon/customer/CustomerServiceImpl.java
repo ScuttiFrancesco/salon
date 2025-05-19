@@ -24,15 +24,15 @@ public class CustomerServiceImpl implements ICustomerService {
     public CustomerDto insert(CustomerDto customer) {
 
         String duplicateField = null;
-        if (customerRepository.existsByEmail(customer.getEmail())) {
+        if (customerRepository.existsByNameAndSurname(customer.getName(), customer.getSurname())) {
+            duplicateField = "Name and surname";
+        } else if (customerRepository.existsByEmail(customer.getEmail())) {
             duplicateField = "Email";
         } else if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
             duplicateField = "Phone number";
-        } else if (customerRepository.existsByNameAndSurname(customer.getName(), customer.getSurname())) {
-            duplicateField = "Name and surname";
         }
         if (duplicateField != null) {
-            throw new DuplicateDataException(duplicateField + " already exists");
+            throw new DuplicateDataException(duplicateField + " già presente in archivio");
         }
         return customerMapper.toDto(customerRepository.save(customerMapper.toEntity(customer)));
     }
@@ -45,16 +45,16 @@ public class CustomerServiceImpl implements ICustomerService {
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
 
         String duplicateField = null;
-        if (customerRepository.existsByEmailAndIdNot(customer.getEmail(), customer.getId())) {
+        if (customerRepository.existsByNameAndSurnameAndIdNot(customer.getName(), customer.getSurname(),
+                customer.getId())) {
+            duplicateField = "Name and surname";
+        } else if (customerRepository.existsByEmailAndIdNot(customer.getEmail(), customer.getId())) {
             duplicateField = "Email";
         } else if (customerRepository.existsByPhoneNumberAndIdNot(customer.getPhoneNumber(), customer.getId())) {
             duplicateField = "Phone number";
-        } else if (customerRepository.existsByNameAndSurnameAndIdNot(customer.getName(), customer.getSurname(),
-                customer.getId())) {
-            duplicateField = "Name and surname";
         }
         if (duplicateField != null) {
-            throw new DuplicateDataException(duplicateField + " already exists");
+            throw new DuplicateDataException(duplicateField + " già presente in archivio");
         }
         return customerMapper.toDto(customerRepository.save(customerMapper.toEntity(customer)));
     }
@@ -68,7 +68,7 @@ public class CustomerServiceImpl implements ICustomerService {
         customerRepository.deleteById(existing.getId());
 
         if (customerRepository.existsById(id)) {
-            throw new RuntimeException("Customer deletion failed");
+            throw new RuntimeException("Eliminazione non riuscita");
         }
 
     }
@@ -77,7 +77,7 @@ public class CustomerServiceImpl implements ICustomerService {
     public CustomerDto findById(Long id) {
 
         Customer existing = customerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Cliente non presente in archivio"));
 
         return customerMapper.toDto(existing);
     }

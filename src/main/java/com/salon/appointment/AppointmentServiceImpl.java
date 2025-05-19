@@ -29,7 +29,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     @Override
     public AppointmentDto insert(AppointmentDto appointment) {
         if (appointmentRepository.existsByDateAndCustomerId(appointment.getDate(), appointment.getCustomerId())) {
-            throw new DuplicateDataException("An appointment already exists with the same date and customer ID");
+            throw new DuplicateDataException("Un appuntamento esiste già con la stessa data e ID cliente");
         }
 
         return appointmentMapper
@@ -41,11 +41,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         @SuppressWarnings("unused")
         Appointment existing = appointmentRepository.findById(appointment.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Appuntamento non presente in archivio"));
 
         if (appointmentRepository.existsByDateAndCustomerIdAndIdNot(appointment.getDate(), appointment.getCustomerId(),
                 appointment.getId())) {
-            throw new DuplicateDataException("An appointment already exists with the same date and customer ID");
+            throw new DuplicateDataException("Un appuntamento esiste già con la stessa data e ID cliente");
         }
 
         return appointmentMapper
@@ -56,12 +56,12 @@ public class AppointmentServiceImpl implements IAppointmentService {
     public void deleteById(Long id) {
         @SuppressWarnings("unused")
         Appointment existing = appointmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Appuntamento non presente in archivio"));
 
         appointmentRepository.deleteById(id);
 
         if (appointmentRepository.existsById(id)) {
-            throw new RuntimeException("Appointment deletion failed");
+            throw new RuntimeException("Eliminazione non riuscita");
         }
 
     }
@@ -69,7 +69,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     @Override
     public AppointmentDto findById(Long id) {
         Appointment existing = appointmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Appuntamento non presente in archivio"));
 
         return appointmentMapper.toDto(existing);
     }
