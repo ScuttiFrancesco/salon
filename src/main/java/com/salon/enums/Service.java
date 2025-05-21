@@ -1,8 +1,5 @@
 package com.salon.enums;
 
 public enum Service {
-   PIEGA,
-   TAGLIO,
-   COLORE,
-   MECHES
+   Taglio, Piega, Colore, Trattamento, Manicure, Meches, Lisciante
 }

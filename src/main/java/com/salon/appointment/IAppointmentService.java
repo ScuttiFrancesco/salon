@@ -14,4 +14,5 @@ public interface IAppointmentService {
     List<AppointmentDto> findByDateBetween(LocalDate startDate, LocalDate endDate);
     List<AppointmentDto> findByDateBetweenAndCustomerId(LocalDate startDate, LocalDate endDate, Long customerId);
     List<AppointmentDto> findByDateAndCustomerId(LocalDate date, Long customerId);
+    List<AppointmentDto> findByCustomerNameOrCustomerSurname(String input);
 }

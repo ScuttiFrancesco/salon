@@ -59,14 +59,20 @@ public class AppointmentController {
         return ResponseEntity.ok(appointments);
     }
 
-    @GetMapping("/date-range/{startDate}/{endDate}")
+    @GetMapping("/retrieveAll/customer={input}")
+    public ResponseEntity<List<AppointmentDto>> findAllByCustomer(@PathVariable String input) {
+        List<AppointmentDto> appointments = appointmentService.findByCustomerNameOrCustomerSurname(input);
+        return ResponseEntity.ok(appointments);
+    }
+
+    @GetMapping("/date-range={startDate}/{endDate}")
     public ResponseEntity<List<AppointmentDto>> findByDateBetween(@PathVariable("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
     @PathVariable("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         List<AppointmentDto> appointments = appointmentService.findByDateBetween(startDate, endDate);
         return ResponseEntity.ok(appointments);
     }
 
-    @GetMapping("/date-range/{startDate}/{endDate}/customer/{customerId}")
+    @GetMapping("/date-range={startDate}/{endDate}/customer={customerId}")
     public ResponseEntity<List<AppointmentDto>> findByDateBetween(@PathVariable("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
     @PathVariable("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate, @PathVariable Long customerId) {
         List<AppointmentDto> appointments = appointmentService.findByDateBetweenAndCustomerId(startDate, endDate, customerId);
