@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-
+//configurazione per la serializzazione e deserializzazione date e ora
 @Configuration
 public class JacksonConfig {
 

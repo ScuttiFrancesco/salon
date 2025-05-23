@@ -1,12 +1,9 @@
-package com.salon.customer;
+package com.salon.operator;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
-
 import com.salon.appointment.Appointment;
 import com.salon.person.Person;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,14 +17,16 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
-@Table(name = "customer")
-public class Customer extends Person {
+@Table(name = "operator")
+public class Operator extends Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;   
-    private Instant firstAccess;
-    @OneToMany(mappedBy = "customer", cascade = {CascadeType.REMOVE, CascadeType.MERGE})
+    private LocalDate hiringDate;
+    private String position;
+    private int level;
+    @OneToMany(mappedBy = "operator")
     private List<Appointment> appointments;
 
 

@@ -9,6 +9,7 @@ public interface IAppointmentService {
     void deleteById(Long id);
     AppointmentDto findById(Long id);
     List<AppointmentDto> findAll();
+    
     List<AppointmentDto> findByCustomerId(Long customerId);
     List<AppointmentDto> findByDate(LocalDate date);
     List<AppointmentDto> findByDateBetween(LocalDate startDate, LocalDate endDate);

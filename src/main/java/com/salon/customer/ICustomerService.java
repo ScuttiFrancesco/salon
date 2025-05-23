@@ -2,6 +2,7 @@ package com.salon.customer;
 
 import java.util.List;
 
+import com.salon.enums.CustomerSearchDirection;
 import com.salon.enums.CustomerSearchType;
 
 public interface ICustomerService {
@@ -45,11 +46,23 @@ public interface ICustomerService {
     List<CustomerDto> findAll();
 
     /**
-     * Trova un cliente per nome o cognome.
+     * Trova clienti con paginazione.
      *
-     * @param id l'ID del cliente da trovare
-     * @return il cliente trovato, se presente
+     * @param page    numero della pagina
+     * @param size    dimensione della pagina
+     * @param sortBy  tipo di campo per ordinamento
+     * @param sortDir direzione dell'ordinamento
+     * @return lista paginata dei clienti
      */
-    List<CustomerDto> findBySearch(CustomerSearchType type ,String input);
+    List<CustomerDto> findByPagination(int page, int size, CustomerSearchType sortBy, CustomerSearchDirection sortDir);
+
+    /**
+     * Conta tutti i clienti.
+     *
+     * @return numero totale di clienti
+     */
+    long countAll();
+
+    List<CustomerDto> findBySearch(CustomerSearchType type, String input);
 
 }

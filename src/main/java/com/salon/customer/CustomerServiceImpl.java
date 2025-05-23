@@ -1,11 +1,19 @@
 package com.salon.customer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.salon.enums.CustomerSearchDirection;
 import com.salon.enums.CustomerSearchType;
 import com.salon.exception.DuplicateDataException;
 import jakarta.persistence.EntityNotFoundException;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -119,5 +127,34 @@ public class CustomerServiceImpl implements ICustomerService {
                 return List.of();
         }
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CustomerDto> findByPagination(int page, int size, CustomerSearchType sortBy, CustomerSearchDirection sortDir) {
+        String sortField = switch (sortBy) {
+            case ID -> "id";
+            case NAME -> "name";
+            case EMAIL -> "email";
+            case PHONE_NUMBER -> "phoneNumber";
+            default -> "id";
+        };
+        
+        Sort.Direction direction = sortDir == CustomerSearchDirection.ASC ? 
+            Sort.Direction.ASC : Sort.Direction.DESC;
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+        Page<Customer> customerPage = customerRepository.findAll(pageable);
+        
+        return customerPage.getContent()
+                .stream()
+                .map(customerMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countAll() {
+        return customerRepository.count();
     }
 }

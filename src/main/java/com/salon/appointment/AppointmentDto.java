@@ -13,5 +13,8 @@ public class AppointmentDto {
     private double duration;
     private String notes;
     private Long customerId;
+    private Long operatorId;
+    private String customerNameAndPhone;
+    private String operatorNameAndPhone; 
     private List<Service> services;
 }
