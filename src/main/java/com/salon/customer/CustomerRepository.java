@@ -28,6 +28,13 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     List<Customer> findByPhoneNumberStartingWithIgnoreCase(Pageable pageable, String phoneNumberPrefix);
 
+    List<Customer> findByNameStartingWithIgnoreCaseOrSurnameStartingWithIgnoreCase(String namePrefix,
+            String surnamePrefix);
+
+    List<Customer> findByEmailStartingWithIgnoreCase(String emailPrefix);
+
+    List<Customer> findByPhoneNumberStartingWithIgnoreCase(String phoneNumberPrefix);
+
   
 
 }

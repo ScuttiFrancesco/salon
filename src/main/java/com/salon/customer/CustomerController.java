@@ -27,13 +27,15 @@ import jakarta.validation.Valid;
 public class CustomerController {
 
     private final ICustomerService customerService;
+    private final CustomerRepository customerRepository;
     private PaginationInfo paginationInfo;
     private PaginatedResponse<List<CustomerDto>> paginatedResponse;
     private int totalElements;
 
     @Autowired
-    public CustomerController(ICustomerService customerService) {
+    public CustomerController(ICustomerService customerService, CustomerRepository customerRepository) {
         this.customerService = customerService;
+        this.customerRepository = customerRepository;
         this.paginationInfo = new PaginationInfo();
         this.paginatedResponse = new PaginatedResponse<>();
         this.totalElements = (int) customerService.countAll();
@@ -75,10 +77,11 @@ public class CustomerController {
             @RequestParam int size,
             @RequestParam int sortBy,
             @RequestParam int sortDir) {
+                 int totalElements = customerRepository.findByNameStartingWithIgnoreCaseOrSurnameStartingWithIgnoreCase(input, input).size();
         List<CustomerDto> customers = customerService.findBySearch(CustomerSearchType.NAME, input, page - 1,
                 size,
                 CustomerSearchType.values()[sortBy], CustomerSearchDirection.values()[sortDir]);
-        this.paginationInfo = paginationInfo(page, size, sortBy, sortDir);
+        this.paginationInfo = paginationInfo(page, size, totalElements, sortBy, sortDir);
 
         this.paginatedResponse.setData(customers);
         this.paginatedResponse.setPagination(paginationInfo);
@@ -92,10 +95,11 @@ public class CustomerController {
             @RequestParam int size,
             @RequestParam int sortBy,
             @RequestParam int sortDir) {
+                 int totalElements = customerRepository.findByEmailStartingWithIgnoreCase(input).size();
         List<CustomerDto> customers = customerService.findBySearch(CustomerSearchType.EMAIL, input, page - 1,
                 size,
                 CustomerSearchType.values()[sortBy], CustomerSearchDirection.values()[sortDir]);
-        this.paginationInfo = paginationInfo(page, size, sortBy, sortDir);
+        this.paginationInfo = paginationInfo(page, size, totalElements, sortBy, sortDir);
 
         this.paginatedResponse.setData(customers);
         this.paginatedResponse.setPagination(paginationInfo);
@@ -109,10 +113,11 @@ public class CustomerController {
             @RequestParam int size,
             @RequestParam int sortBy,
             @RequestParam int sortDir) {
+                int totalElements = customerRepository.findByPhoneNumberStartingWithIgnoreCase(input).size();
         List<CustomerDto> customers = customerService.findBySearch(CustomerSearchType.PHONE_NUMBER, input, page - 1,
                 size,
                 CustomerSearchType.values()[sortBy], CustomerSearchDirection.values()[sortDir]);
-        this.paginationInfo = paginationInfo(page, size, sortBy, sortDir);
+        this.paginationInfo = paginationInfo(page, size, totalElements, sortBy, sortDir);
 
         this.paginatedResponse.setData(customers);
         this.paginatedResponse.setPagination(paginationInfo);
@@ -127,10 +132,10 @@ public class CustomerController {
             @RequestParam int sortBy,
             @RequestParam int sortDir) {
 
-        this.paginationInfo = paginationInfo(page, size, sortBy, sortDir);
-
-        List<CustomerDto> customers = customerService.findByPagination(page - 1, size,
+                
+                List<CustomerDto> customers = customerService.findByPagination(page - 1, size,
                 CustomerSearchType.values()[sortBy], CustomerSearchDirection.values()[sortDir]);
+                this.paginationInfo = paginationInfo(page, size, this.totalElements ,sortBy, sortDir);
 
         this.paginatedResponse.setData(customers);
         this.paginatedResponse.setPagination(paginationInfo);
@@ -138,7 +143,7 @@ public class CustomerController {
         return ResponseEntity.ok(this.paginatedResponse);
     }
 
-    private PaginationInfo paginationInfo(int page, int size, int sortBy, int sortDir) {
+    private PaginationInfo paginationInfo(int page, int size, int totalElements ,int sortBy, int sortDir) {
 
         CustomerSearchType sortByEnum = CustomerSearchType.values()[sortBy];
         CustomerSearchDirection sortDirEnum = CustomerSearchDirection.values()[sortDir];
@@ -149,7 +154,7 @@ public class CustomerController {
             throw new IllegalArgumentException("Parametri di paginazione non validi");
         }
 
-        int totalPages = (int) Math.ceil((double) this.totalElements / size);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
 
         paginationInfo.setCurrentPage(page);
         paginationInfo.setPageSize(size);
