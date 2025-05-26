@@ -10,7 +10,7 @@ public class PaginationInfo {
     private int totalPages;
     private boolean hasNext;
     private boolean hasPrevious;
-    private String sortBy;
-    private String sortDirection;
+    private int sortBy;
+    private int sortDirection;
 
 }

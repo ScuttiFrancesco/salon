@@ -63,6 +63,6 @@ public interface ICustomerService {
      */
     long countAll();
 
-    List<CustomerDto> findBySearch(CustomerSearchType type, String input);
+    List<CustomerDto> findBySearch(CustomerSearchType type, String input, int page, int size, CustomerSearchType sortBy, CustomerSearchDirection sortDir);
 
 }

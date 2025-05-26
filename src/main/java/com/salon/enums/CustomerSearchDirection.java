@@ -1,7 +1,7 @@
 package com.salon.enums;
 
 public enum CustomerSearchDirection {
-    ASC(1), DESC(2);
+    ASC(0), DESC(1);
 
     private final int value;
 

@@ -1,7 +1,7 @@
 package com.salon.enums;
 
 public enum CustomerSearchType {
-  ID(1), NAME(2), SURNAME(3), EMAIL(4), PHONE_NUMBER(5);
+  ID(0), NAME(1), SURNAME(2), EMAIL(3), PHONE_NUMBER(4);
 
   private final int value;
 

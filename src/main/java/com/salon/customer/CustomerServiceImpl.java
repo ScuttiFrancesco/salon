@@ -99,26 +99,28 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     @Override
-    public List<CustomerDto> findBySearch(CustomerSearchType type, String input) {
+    public List<CustomerDto> findBySearch(CustomerSearchType type, String input, int page, int size,
+            CustomerSearchType sortBy, CustomerSearchDirection sortDir) {
 
+        Pageable pageable = pagination(sortBy, sortDir, page, size);
         switch (type) {
             case NAME:
                 return customerRepository
-                        .findByNameStartingWithIgnoreCaseOrSurnameStartingWithIgnoreCase(input, input)
+                        .findByNameStartingWithIgnoreCaseOrSurnameStartingWithIgnoreCase(pageable ,input, input)
                         .stream()
                         .map(customerMapper::toDto)
                         .toList();
 
             case EMAIL:
                 return customerRepository
-                        .findByEmailStartingWithIgnoreCase(input)
+                        .findByEmailStartingWithIgnoreCase(pageable,input)
                         .stream()
                         .map(customerMapper::toDto)
                         .toList();
 
             case PHONE_NUMBER:
                 return customerRepository
-                        .findByPhoneNumberStartingWithIgnoreCase(input)
+                        .findByPhoneNumberStartingWithIgnoreCase(pageable,input)
                         .stream()
                         .map(customerMapper::toDto)
                         .toList();
@@ -131,21 +133,11 @@ public class CustomerServiceImpl implements ICustomerService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CustomerDto> findByPagination(int page, int size, CustomerSearchType sortBy, CustomerSearchDirection sortDir) {
-        String sortField = switch (sortBy) {
-            case ID -> "id";
-            case NAME -> "name";
-            case EMAIL -> "email";
-            case PHONE_NUMBER -> "phoneNumber";
-            default -> "id";
-        };
-        
-        Sort.Direction direction = sortDir == CustomerSearchDirection.ASC ? 
-            Sort.Direction.ASC : Sort.Direction.DESC;
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+    public List<CustomerDto> findByPagination(int page, int size, CustomerSearchType sortBy,
+            CustomerSearchDirection sortDir) {
+        Pageable pageable = pagination(sortBy, sortDir, page, size);
         Page<Customer> customerPage = customerRepository.findAll(pageable);
-        
+
         return customerPage.getContent()
                 .stream()
                 .map(customerMapper::toDto)
@@ -156,5 +148,21 @@ public class CustomerServiceImpl implements ICustomerService {
     @Transactional(readOnly = true)
     public long countAll() {
         return customerRepository.count();
+    }
+
+    private Pageable pagination(CustomerSearchType sortBy, CustomerSearchDirection sortDir, int page, int size) {
+        String sortField = switch (sortBy) {
+            case ID -> "id";
+            case NAME -> "name";
+            case SURNAME -> "surname";
+            case EMAIL -> "email";
+            case PHONE_NUMBER -> "phoneNumber";
+            default -> "id";
+        };
+
+        Sort.Direction direction = sortDir == CustomerSearchDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+        return pageable;
     }
 }
