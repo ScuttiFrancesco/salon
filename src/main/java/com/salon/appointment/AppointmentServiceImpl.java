@@ -1,11 +1,17 @@
 package com.salon.appointment;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.salon.customer.Customer;
 import com.salon.customer.CustomerRepository;
+import com.salon.enums.AppointmentSearchDirection;
+import com.salon.enums.AppointmentSearchType;
 import com.salon.operator.Operator;
 import com.salon.operator.OperatorRepository;
 import com.salon.exception.DuplicateDataException;
@@ -176,18 +182,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 .toList();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<AppointmentDto> findByDateAndCustomerId(LocalDate date, Long customerId) {
-        LocalDateTime DateTime = date.atStartOfDay();
-
-        return appointmentRepository.findByDateAndCustomerId(DateTime, customerId)
-                .stream()
-                .map(appointmentMapper::toDto)
-                .toList();
-
-    }
-
+  
     @Override
     @Transactional(readOnly = true)
     public List<AppointmentDto> findByDateBetween(LocalDate startDate, LocalDate endDate) {
@@ -201,11 +196,15 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AppointmentDto> findByDateBetweenAndCustomerId(LocalDate startDate, LocalDate endDate,
-            Long customerId) {
+    public List<AppointmentDto> findByDateBetweenAndCustomerName(LocalDate startDate, LocalDate endDate,
+            String input, int page, int size, AppointmentSearchType sortBy, AppointmentSearchDirection sortDir) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-        return appointmentRepository.findByDateBetweenAndCustomerId(startDateTime, endDateTime, customerId)
+        
+        Pageable pageable = pagination(sortBy, sortDir, page, size);
+        
+        return appointmentRepository.findByDateBetweenAndCustomerNameStartingWithIgnoreCaseOrCustomerSurnameStartingWithIgnoreCase(
+                pageable, startDateTime, endDateTime, input, input)
                 .stream()
                 .map(appointmentMapper::toDto)
                 .toList();
@@ -220,4 +219,75 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 .map(appointmentMapper::toDto)
                 .toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AppointmentDto> findByPagination(int page, int size, AppointmentSearchType sortBy, AppointmentSearchDirection sortDir) {
+        Pageable pageable = pagination(sortBy, sortDir, page, size);
+        Page<Appointment> appointmentPage = appointmentRepository.findAll(pageable);
+
+        return appointmentPage.getContent()
+                .stream()
+                .map(appointmentMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countAll() {
+        return appointmentRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AppointmentDto> findBySearch(AppointmentSearchType type, String input, int page, int size,
+            AppointmentSearchType sortBy, AppointmentSearchDirection sortDir) {
+
+        Pageable pageable = pagination(sortBy, sortDir, page, size);
+        switch (type) {
+            case CUSTOMER_NAME:
+                return appointmentRepository
+                        .findByCustomerNameStartingWithIgnoreCaseOrCustomerSurnameStartingWithIgnoreCase(pageable, input, input)
+                        .stream()
+                        .map(appointmentMapper::toDto)
+                        .toList();
+
+            case OPERATOR_NAME:
+                return appointmentRepository
+                        .findByOperatorNameStartingWithIgnoreCaseOrOperatorSurnameStartingWithIgnoreCase(pageable, input, input)
+                        .stream()
+                        .map(appointmentMapper::toDto)
+                        .toList();
+
+            case DURATION:
+                return appointmentRepository
+                        .findByNotesContainingIgnoreCase(pageable, input)
+                        .stream()
+                        .map(appointmentMapper::toDto)
+                        .toList();
+
+            default:
+                return List.of();
+        }
+    }
+
+    private Pageable pagination(AppointmentSearchType sortBy, AppointmentSearchDirection sortDir, int page, int size) {
+        String sortField = switch (sortBy) {
+            case ID -> "id";
+            case DATE -> "date";
+            case CUSTOMER_NAME -> "customer.name";
+            case OPERATOR_NAME -> "operator.name";
+            case DURATION -> "notes";
+            default -> "id";
+        };
+
+        Sort.Direction direction = sortDir == AppointmentSearchDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+        return pageable;
+    }
+
+   
+
+ 
 }
