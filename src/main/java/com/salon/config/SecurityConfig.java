@@ -62,11 +62,26 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
+                // Endpoint pubblici
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/api/*/retrieveAll").hasAnyRole("USER", "ADMIN")
+                
+                // Endpoint paginati accessibili a tutti gli utenti autenticati
+                .requestMatchers("/api/*/retrieveAll/paginated**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/api/*/retrieveAll**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/api/*/search**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/api/*/dateRange**").hasAnyRole("USER", "ADMIN")
+                
+                // Endpoint specifici per lettura
+                .requestMatchers("/api/*/findById/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/api/*/*").hasAnyRole("USER", "ADMIN")
+                
+                // Endpoint admin-only per operazioni di scrittura
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/*/delete/**").hasRole("ADMIN")
+                
+                // Tutti gli altri endpoint API richiedono autenticazione
                 .requestMatchers("/api/**").hasAnyRole("USER", "ADMIN")
+                
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())
