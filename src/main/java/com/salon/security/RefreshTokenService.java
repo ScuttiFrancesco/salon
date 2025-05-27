@@ -31,6 +31,9 @@ public class RefreshTokenService {
         // Rimuovi eventuali refresh token esistenti per questo utente
         refreshTokenRepository.deleteByUser(user);
         
+        // Flush per assicurarsi che la cancellazione sia completata
+        refreshTokenRepository.flush();
+        
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
         refreshToken.setToken(jwtUtil.generateRefreshToken(user));
